@@ -143,8 +143,22 @@ create trigger trg_issues_code before insert on issues
   for each row execute function assign_issue_code();
 
 -- ─────────────────────────────────────────────────────────────
--- Stage history trigger — log every change of current_stage
+-- Stage tracking triggers — split BEFORE (mutates NEW) and AFTER (logs history)
 -- ─────────────────────────────────────────────────────────────
+create or replace function bump_stage_entered_at()
+returns trigger language plpgsql as $$
+begin
+  if (tg_op = 'UPDATE' and old.current_stage is distinct from new.current_stage) then
+    new.stage_entered_at := now();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_issues_stage_bump on issues;
+create trigger trg_issues_stage_bump before update on issues
+  for each row execute function bump_stage_entered_at();
+
 create or replace function log_stage_change()
 returns trigger language plpgsql as $$
 begin
@@ -154,14 +168,13 @@ begin
   elsif (tg_op = 'UPDATE' and old.current_stage is distinct from new.current_stage) then
     insert into stage_history(issue_id, from_stage, to_stage, signed_off_by, rationale)
     values (new.id, old.current_stage, new.current_stage, coalesce(current_setting('app.signed_off_by', true), 'unknown'), null);
-    new.stage_entered_at := now();
   end if;
-  return new;
+  return null;
 end;
 $$;
 
 drop trigger if exists trg_issues_stage_log on issues;
-create trigger trg_issues_stage_log before insert or update on issues
+create trigger trg_issues_stage_log after insert or update on issues
   for each row execute function log_stage_change();
 
 -- ─────────────────────────────────────────────────────────────
