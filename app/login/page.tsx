@@ -35,15 +35,15 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center px-4" style={{ background: "var(--paper)" }}>
       <div className="w-full max-w-md border p-10" style={{ background: "var(--paper)", borderColor: "var(--rule)" }}>
         <div className="eyebrow flex justify-between items-center mb-8">
-          <span>Wiom · Operations Engine</span>
+          <span>Wiom · Netbox</span>
           <span style={{ color: "var(--warm)" }}>v1</span>
         </div>
 
         <h1 className="font-serif text-5xl leading-[0.95] tracking-tight" style={{ color: "var(--ink)" }}>
-          Closed <em className="italic font-light" style={{ color: "var(--accent)" }}>Loop.</em>
+          Netbox <em className="italic font-light" style={{ color: "var(--accent)" }}>Loop.</em>
         </h1>
         <p className="font-serif italic text-base mt-4" style={{ color: "var(--ink-2)" }}>
-          Seven stages from Sense to Verify. Zero open loops.
+          Detect, fix, close. Seven stages from Sense to Verify.
         </p>
 
         <div className="border-t my-8" style={{ borderColor: "var(--rule)" }} />

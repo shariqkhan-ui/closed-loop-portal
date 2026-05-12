@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Closed Loop — Wiom Operations Engine",
-  description: "Seven-stage issue tracker: Sense → Triage → Diagnose → Design → Pilot → Rollout → Verify",
+  title: "Netbox Loop — Detect, Fix, Close",
+  description: "Seven-stage issue engine for Netbox: Sense → Triage → Diagnose → Design → Pilot → Rollout → Verify",
 };
 
 export default function RootLayout({
