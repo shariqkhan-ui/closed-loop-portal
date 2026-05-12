@@ -43,10 +43,10 @@ export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
           <div className="px-6 pt-7 pb-5 border-b" style={{ borderColor: 'var(--rule)' }}>
             <div className="eyebrow mb-2">Wiom · Netbox</div>
             <h1 className="font-serif text-2xl leading-none" style={{ color: 'var(--ink)' }}>
-              Netbox <em className="italic font-light" style={{ color: 'var(--accent)' }}>Loop</em>
+              Netbox <em className="italic font-light" style={{ color: 'var(--accent)' }}>Issue</em>
             </h1>
             <p className="text-[11px] font-mono mt-2" style={{ color: 'var(--ink-mute)' }}>
-              Detect · Fix · Close
+              Detection → Closure
             </p>
           </div>
 
