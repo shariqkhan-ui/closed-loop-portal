@@ -8,7 +8,7 @@ import { AlertTriangle, ArrowRight, Activity, Clock } from 'lucide-react'
 import IssueDrawer from './IssueDrawer'
 import StageBadge, { SeverityBadge } from './StageBadge'
 import AgingClock from './AgingClock'
-import type { PageKey } from '../page'
+import type { PageKey } from '../HomeClient'
 
 export default function Dashboard({ onNavigate }: { onNavigate: (p: PageKey) => void }) {
   const { issues, loading } = useIssues()

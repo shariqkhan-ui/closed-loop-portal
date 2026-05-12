@@ -1,9 +1,10 @@
 'use client'
 
-import { LayoutDashboard, KanbanSquare, List, AlertTriangle, BookOpen, Menu, ChevronLeft, Plus, LogOut } from 'lucide-react'
-import type { PageKey } from '../page'
+import { LayoutDashboard, KanbanSquare, List, AlertTriangle, BookOpen, Menu, ChevronLeft, Plus, LogOut, Info, User } from 'lucide-react'
+import type { PageKey } from '../HomeClient'
 import { useState } from 'react'
 import NewIssueModal from './NewIssueModal'
+import AboutModal from './AboutModal'
 import { doSignOut } from '../actions'
 
 interface Props {
@@ -11,10 +12,12 @@ interface Props {
   onChange: (p: PageKey) => void
   isOpen: boolean
   onToggle: (v: boolean) => void
+  userEmail: string | null
 }
 
-export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
+export default function Sidebar({ active, onChange, isOpen, onToggle, userEmail }: Props) {
   const [showNew, setShowNew] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   const items: { id: PageKey; label: string; icon: React.ElementType; hint?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, hint: 'Counts by stage and severity' },
@@ -42,18 +45,33 @@ export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
         <div className="flex flex-col h-full">
           <div className="px-6 pt-7 pb-5 border-b" style={{ borderColor: 'var(--rule)' }}>
             <div className="eyebrow mb-2">Wiom · Netbox</div>
-            <h1 className="font-serif text-2xl leading-none" style={{ color: 'var(--ink)' }}>
-              Netbox <em className="italic font-light" style={{ color: 'var(--accent)' }}>Bug</em>
+            <h1 className="text-2xl leading-none font-bold" style={{ color: 'var(--ink)' }}>
+              Netbox <em className="italic" style={{ color: 'var(--accent)' }}>Bug</em>
             </h1>
-            <p className="text-[11px] font-mono mt-2" style={{ color: 'var(--ink-mute)' }}>
+            <p className="text-[11px] mt-2 font-semibold tracking-wider uppercase" style={{ color: 'var(--ink-mute)' }}>
               Detection → Closure
             </p>
           </div>
 
-          <div className="px-4 pt-4">
+          {/* Signed-in user */}
+          {userEmail && (
+            <div className="px-4 pt-4">
+              <div className="flex items-center gap-2.5 px-3 py-2.5 border rounded-md" style={{ borderColor: 'var(--rule)', background: 'var(--paper-2)' }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[12px] shrink-0" style={{ background: 'var(--accent)', color: 'var(--paper)' }}>
+                  {userEmail.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--ink-mute)' }}>Signed in</div>
+                  <div className="text-[12px] font-semibold truncate" style={{ color: 'var(--ink)' }} title={userEmail}>{userEmail}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="px-4 pt-3">
             <button
               onClick={() => setShowNew(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md font-medium text-sm transition"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md font-bold text-sm transition"
               style={{ background: 'var(--accent)', color: 'var(--paper)' }}
             >
               <Plus className="w-4 h-4" /> New Issue
@@ -76,9 +94,9 @@ export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
                 >
                   <Icon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div className="flex-1">
-                    <div className="text-sm font-medium leading-tight">{item.label}</div>
+                    <div className={`text-sm leading-tight ${isActive ? 'font-bold' : 'font-semibold'}`}>{item.label}</div>
                     {item.hint && (
-                      <div className="text-[11px] font-mono mt-0.5" style={{ color: 'var(--ink-mute)' }}>
+                      <div className="text-[11px] mt-0.5" style={{ color: 'var(--ink-mute)' }}>
                         {item.hint}
                       </div>
                     )}
@@ -88,16 +106,24 @@ export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
             })}
           </nav>
 
+          {/* Bottom: About + Sign out */}
           <div className="px-4 py-4 border-t space-y-2" style={{ borderColor: 'var(--rule)' }}>
-            <p className="px-1 text-[11px] font-mono leading-relaxed" style={{ color: 'var(--ink-mute)' }}>
-              Issue-ID travels every stage.<br />
-              Aging clock per stage.<br />
-              Stuck loops auto-escalate.
-            </p>
+            <button
+              onClick={() => setShowAbout(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition border"
+              style={{ borderColor: 'var(--accent)', color: 'var(--accent)', background: 'var(--accent-soft)' }}
+            >
+              <Info className="w-4 h-4 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold leading-tight">What is Netbox Bug?</div>
+                <div className="text-[10px] mt-0.5" style={{ color: 'var(--ink-mute)' }}>The doc · Detection to Closure</div>
+              </div>
+            </button>
+
             <form action={doSignOut}>
               <button
                 type="submit"
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition hover:bg-[color:var(--paper-2)]"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-semibold transition hover:bg-[color:var(--paper-2)]"
                 style={{ color: 'var(--ink-2)' }}
               >
                 <LogOut className="w-4 h-4" />
@@ -109,6 +135,7 @@ export default function Sidebar({ active, onChange, isOpen, onToggle }: Props) {
       </aside>
 
       {showNew && <NewIssueModal onClose={() => setShowNew(false)} />}
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </>
   )
 }

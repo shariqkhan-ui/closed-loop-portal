@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { X, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Lock } from 'lucide-react'
+import { X, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Lock, Clock, UserCircle2 } from 'lucide-react'
 import { supabase, supabaseConfigured, type Issue, type LoopStage } from '@/lib/supabase'
-import { STAGES, STAGE_BY_KEY, nextStage, prevStage } from '@/lib/framework'
+import { STAGES, STAGE_BY_KEY, nextStage, prevStage, slaHoursFor, ageTier, TIER_LABEL } from '@/lib/framework'
 import StageBadge, { SeverityBadge } from './StageBadge'
 import AgingClock from './AgingClock'
 import { useIssues, updateIssue } from '../hooks/useIssues'
@@ -104,16 +104,19 @@ export default function IssueDrawer({ issueId, onClose }: Props) {
             const filled = idx <= currentStageIdx
             const isCurrent = idx === currentStageIdx
             return (
-              <details key={s.key} open={isCurrent} className="border" style={{ borderColor: 'var(--rule)' }}>
-                <summary className="cursor-pointer px-4 py-3 flex items-center justify-between" style={{ background: filled ? 'var(--paper-2)' : 'var(--paper)' }}>
-                  <div className="flex items-center gap-3">
-                    {filled
-                      ? <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--good)' }} />
-                      : <Lock className="w-4 h-4" style={{ color: 'var(--ink-faint)' }} />}
-                    <span className="font-mono text-[10px]" style={{ color: 'var(--ink-mute)' }}>{s.num}</span>
-                    <span className="font-serif text-lg">{s.name}</span>
+              <details key={s.key} open={isCurrent} className="border" style={{ borderColor: isCurrent ? 'var(--accent)' : 'var(--rule)' }}>
+                <summary className="cursor-pointer px-4 py-3" style={{ background: isCurrent ? 'var(--accent-soft)' : filled ? 'var(--paper-2)' : 'var(--paper)' }}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      {filled
+                        ? <CheckCircle2 className="w-4 h-4" style={{ color: isCurrent ? 'var(--accent)' : 'var(--good)' }} />
+                        : <Lock className="w-4 h-4" style={{ color: 'var(--ink-faint)' }} />}
+                      <span className="font-bold text-[11px]" style={{ color: 'var(--ink-mute)' }}>{s.num}</span>
+                      <span className="text-lg font-bold">{s.name}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold" style={{ color: 'var(--ink-mute)' }}>Sign-off: {s.signOff}</span>
                   </div>
-                  <span className="text-[11px] font-mono" style={{ color: 'var(--ink-mute)' }}>{s.signOff}</span>
+                  <StageMeta stage={s.key} issue={issue} isCurrent={isCurrent} filled={filled} />
                 </summary>
                 <div className="px-5 py-4 border-t" style={{ borderColor: 'var(--rule)' }}>
                   <StageFields stage={s.key} issue={issue} edit={edit} setEdit={setEdit} disabled={!filled} />
@@ -174,6 +177,72 @@ export default function IssueDrawer({ issueId, onClose }: Props) {
           </div>
         )}
       </aside>
+    </div>
+  )
+}
+
+function fmtHours(h: number): string {
+  if (h < 0) return '0m'
+  if (h < 1) return Math.round(h * 60) + 'm'
+  if (h < 48) return Math.round(h) + 'h'
+  return Math.round(h / 24) + 'd'
+}
+
+function StageMeta({ stage, issue, isCurrent, filled }: { stage: LoopStage; issue: Issue; isCurrent: boolean; filled: boolean }) {
+  const def = STAGE_BY_KEY[stage]
+  if (!def) return null
+  const sla = slaHoursFor(stage, issue.severity)
+
+  let timeBlock: React.ReactNode = null
+  if (isCurrent) {
+    if (sla > 0) {
+      const elapsed = (Date.now() - new Date(issue.stage_entered_at).getTime()) / 3600 / 1000
+      const remaining = sla - elapsed
+      const tier = ageTier(elapsed, sla)
+      const tierMeta = TIER_LABEL[tier]
+      const flagBg = tier === 'tier0' ? 'var(--good-soft)' : 'var(--warm-soft)'
+      const flagColor = tier === 'tier0' ? 'var(--good)' : 'var(--warm)'
+      timeBlock = (
+        <span className={`inline-flex items-center gap-1.5 font-mono text-[10px] px-2 py-0.5 border font-bold ${tierMeta.cls}`}>
+          <Clock className="w-3 h-3" />
+          {remaining > 0
+            ? <>{fmtHours(remaining)} left · {fmtHours(elapsed)} / {fmtHours(sla)}</>
+            : <>Overdue by {fmtHours(-remaining)} · {tierMeta.label}</>}
+        </span>
+      )
+    } else {
+      timeBlock = (
+        <span className="inline-flex items-center gap-1.5 font-mono text-[10px]" style={{ color: 'var(--ink-mute)' }}>
+          <Clock className="w-3 h-3" /> Criteria-driven
+        </span>
+      )
+    }
+  } else if (filled) {
+    timeBlock = (
+      <span className="inline-flex items-center gap-1.5 font-mono text-[10px]" style={{ color: 'var(--good)' }}>
+        <CheckCircle2 className="w-3 h-3" /> Cleared
+      </span>
+    )
+  } else {
+    timeBlock = (
+      <span className="inline-flex items-center gap-1.5 font-mono text-[10px]" style={{ color: 'var(--ink-faint)' }}>
+        Target {def.clockP1}
+      </span>
+    )
+  }
+
+  const ownerLine = (
+    <span className="inline-flex items-center gap-1.5 font-mono text-[10px]" style={{ color: 'var(--ink-2)' }}>
+      <UserCircle2 className="w-3 h-3" />
+      <span className="font-semibold">{def.owner}</span>
+      {issue.owner_name && <span style={{ color: 'var(--ink-mute)' }}>· {issue.owner_name}</span>}
+    </span>
+  )
+
+  return (
+    <div className="flex items-center gap-4 flex-wrap mt-2 pl-7">
+      {ownerLine}
+      {timeBlock}
     </div>
   )
 }
