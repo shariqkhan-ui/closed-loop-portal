@@ -51,7 +51,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: PageKey) => 
       <header className="px-10 pt-10 pb-6 border-b" style={{ borderColor: 'var(--rule)' }}>
         <div className="flex items-center justify-between mb-3">
           <div className="eyebrow">Netbox · {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-          <div className="eyebrow" style={{ color: 'var(--warm)' }}>Netbox Issue · v1</div>
+          <div className="eyebrow" style={{ color: 'var(--warm)' }}>Netbox Bug · v1</div>
         </div>
         <h1 className="font-serif text-5xl leading-[0.95] tracking-tight" style={{ color: 'var(--ink)' }}>
           Every signal becomes a loop.<br />

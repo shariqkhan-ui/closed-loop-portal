@@ -40,7 +40,7 @@ export default async function LoginPage({
         </div>
 
         <h1 className="font-serif text-5xl leading-[0.95] tracking-tight" style={{ color: "var(--ink)" }}>
-          Netbox <em className="italic font-light" style={{ color: "var(--accent)" }}>Issue.</em>
+          Netbox <em className="italic font-light" style={{ color: "var(--accent)" }}>Bug.</em>
         </h1>
         <p className="font-serif italic text-base mt-4" style={{ color: "var(--ink-2)" }}>
           Detection to closure. Seven stages from Sense to Verify.
