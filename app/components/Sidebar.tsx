@@ -39,10 +39,10 @@ export default function Sidebar({ active, onChange, isOpen, onToggle, userEmail 
       </button>
 
       <aside
-        className={`fixed top-0 left-0 h-full w-64 z-40 transition-transform duration-300 border-r ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 h-full w-64 z-40 transition-transform duration-300 border-r overflow-y-auto ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ background: 'var(--paper)', borderColor: 'var(--rule)' }}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col min-h-full">
           <div className="px-6 pt-7 pb-5 border-b" style={{ borderColor: 'var(--rule)' }}>
             <div className="eyebrow mb-2">Wiom · Netbox</div>
             <h1 className="text-2xl leading-none font-bold" style={{ color: 'var(--ink)' }}>
@@ -64,6 +64,17 @@ export default function Sidebar({ active, onChange, isOpen, onToggle, userEmail 
                   <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--ink-mute)' }}>Signed in</div>
                   <div className="text-[12px] font-semibold truncate" style={{ color: 'var(--ink)' }} title={userEmail}>{userEmail}</div>
                 </div>
+                <form action={doSignOut}>
+                  <button
+                    type="submit"
+                    title="Sign out"
+                    aria-label="Sign out"
+                    className="p-1.5 rounded hover:bg-[color:var(--paper)] transition shrink-0"
+                    style={{ color: 'var(--warm)' }}
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </form>
               </div>
             </div>
           )}
